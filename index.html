@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantek Pintar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === GLOBAL SETTINGS === */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.main-wrapper {
+    max-width: 600px; /* Lebar dibatasi agar mirip tampilan mobile */
+    margin: 0 auto;
+}
+
+.main-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* === BAGIAN DENAH (MAP) === */
+.map-container {
+    background-color: #f0f0f0; /* Warna latar abu-abu muda */
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.map-layout {
+    display: flex;
+    gap: 20px;
+}
+
+.kios-section {
+    flex: 3;
+}
+
+.jalan-label {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #999;
+    letter-spacing: 5px;
+    margin: 10px 0;
+}
+
+/* GRID UNTUK KOTAK NOMOR */
+.grid-row-top, .grid-row-bottom {
+    display: grid;
+    /* Membuat kolom otomatis, tapi diatur barisnya */
+    grid-template-columns: repeat(8, 1fr); /* 8 kotak per baris untuk blok atas */
+    gap: 2px;
+}
+
+/* Blok bawah strukturnya sedikit beda (10 kotak per baris) */
+.grid-row-bottom {
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.kios-box {
+    background: #fff;
+    border: 1px solid #333;
+    aspect-ratio: 1/1; /* Agar kotak selalu persegi */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.kios-box:hover, .kios-box.active {
+    background-color: #333;
+    color: white;
+}
+
+/* SISI KANAN (MEJA & TOILET) */
+.facilities-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.tables-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Membuat ikon meja sederhana dengan CSS */
+.table-icon {
+    width: 25px;
+    height: 25px;
+    border: 1px dashed #999;
+    border-radius: 4px;
+    position: relative;
+}
+.table-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px; height: 10px;
+    background: #ccc;
+    border-radius: 50%;
+}
+
+.toilet-box {
+    border: 1px solid #333;
+    padding: 5px;
+    writing-mode: vertical-rl; /* Teks vertikal */
+    text-orientation: mixed;
+    background: #fff;
+    font-size: 0.8rem;
+}
+
+/* === BAGIAN SEARCH === */
+.search-section {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+}
+
+#search-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: inherit;
+}
+
+#search-btn {
+    background-color: #222;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.status-text {
+    margin: 10px 0 0 0;
+    font-size: 1.1rem;
+}
+
+/* === BAGIAN KARTU (CARDS) === */
+.cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 kolom seperti di gambar */
+    gap: 15px;
+}
+
+.card {
+    background-color: #f9f9f9; /* Abu-abu sangat muda */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+.card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.badge {
+    background-color: #444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    width: fit-content;
+    margin-bottom: 5px;
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+.card-image img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.btn-lihat {
+    background-color: #2ecc71; /* Hijau cerah sesuai gambar */
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 0 0 10px 10px; /* Melengkung bawah saja */
+}
+
+.btn-lihat:hover {
+    background-color: #27ae60;
+}
+
+/* Responsif untuk layar kecil (HP) */
+@media (max-width: 400px) {
+    .cards-grid {
+        grid-template-columns: 1fr; /* Jadi 1 kolom di HP kecil */
+    }
+    .grid-row-top, .grid-row-bottom {
+        gap: 1px; /* Rapatkan kotak di layar kecil */
+    }
+}
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <h1 class="main-title">Kantek Pintar</h1>
+        <p class="subtitle">Denah kantek</p>
+
+        <section class="map-container">
+            <div class="map-layout">
+                
+                <div class="kios-section">
+                    <div class="jalan-label">J A L A N</div>
+                    
+                    <div class="grid-row-top">
+                        <div class="kios-box" data-kios="29">29</div>
+                        <div class="kios-box" data-kios="30">30</div>
+                        <div class="kios-box" data-kios="31">31</div>
+                        <div class="kios-box" data-kios="32">32</div>
+                        <div class="kios-box" data-kios="33">33</div>
+                        <div class="kios-box" data-kios="34">34</div>
+                        <div class="kios-box" data-kios="35">35</div>
+                        <div class="kios-box" data-kios="36">36</div>
+                        <div class="kios-box" data-kios="28">28</div>
+                        <div class="kios-box" data-kios="27">27</div>
+                        <div class="kios-box" data-kios="26">26</div>
+                        <div class="kios-box" data-kios="25">25</div>
+                        <div class="kios-box" data-kios="24">24</div>
+                        <div class="kios-box" data-kios="23">23</div>
+                        <div class="kios-box" data-kios="22">22</div>
+                        <div class="kios-box" data-kios="21">21</div>
+                    </div>
+
+                    <div class="jalan-label">J A L A N</div>
+
+                    <div class="grid-row-bottom">
+                        <div class="kios-box" data-kios="11">11</div>
+                        <div class="kios-box" data-kios="12">12</div>
+                        <div class="kios-box" data-kios="13">13</div>
+                        <div class="kios-box" data-kios="14">14</div>
+                        <div class="kios-box" data-kios="15">15</div>
+                        <div class="kios-box" data-kios="16">16</div>
+                        <div class="kios-box" data-kios="17">17</div>
+                        <div class="kios-box" data-kios="18">18</div>
+                        <div class="kios-box" data-kios="19">19</div>
+                        <div class="kios-box" data-kios="20">20</div>
+                        <div class="kios-box" data-kios="10">10</div>
+                        <div class="kios-box" data-kios="9">9</div>
+                        <div class="kios-box" data-kios="8">8</div>
+                        <div class="kios-box" data-kios="7">7</div>
+                        <div class="kios-box" data-kios="6">6</div>
+                        <div class="kios-box" data-kios="5">5</div>
+                        <div class="kios-box" data-kios="4">4</div>
+                        <div class="kios-box" data-kios="3">3</div>
+                        <div class="kios-box" data-kios="2">2</div>
+                        <div class="kios-box" data-kios="1">1</div>
+                    </div>
+
+                    <div class="jalan-label">J A L A N</div>
+                </div>
+
+                <div class="facilities-section">
+                    <div class="tables-area">
+                        <div class="table-icon"></div>
+                        <div class="table-icon"></div>
+                        <div class="table-icon"></div>
+                        <div class="table-icon"></div>
+                        <div class="table-icon"></div>
+                        <div class="table-icon"></div>
+                    </div>
+                    <div class="toilet-box">Toilet</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="search-section">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Cari nama kios...">
+                <button id="search-btn">Tampilkan</button>
+            </div>
+            <p class="status-text">Menampilkan: <span id="current-filter">(Semua Kios)</span></p>
+        </section>
+
+        <section class="cards-grid" id="cards-container">
+
+            <article class="card" data-kios="2" data-name="roti kebab dimsum">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 2</span>
+                        <h3>Roti Kebab Dimsum</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="roti kebab dimsum.webp" alt="Menu 2">
+                    </div>
+                </div>
+                <a href="rotikebabdimsum.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+            <article class="card" data-kios="3" data-name="pempek">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 3</span>
+                        <h3>Pempek</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="pempek.webp" alt="Menu 3">
+                    </div>
+                </div>
+                <a href="pempek.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+            
+            <article class="card" data-kios="4" data-name="macaroni schotel">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 4</span>
+                        <h3>Macaroni Schotel</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="macaroni schotel.webp" alt="Menu 1">
+                    </div>
+                </div>
+                <a href="macaroni.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+            <article class="card" data-kios="5" data-name="aneka juice dan milkshake">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 5</span>
+                        <h3>Aneka Juice dan Milkshake</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="juice and milkshake.webp" alt="Menu 5">
+                    </div>
+                </div>
+                <a href="juiceandmilkshake.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+            <article class="card" data-kios="11" data-name="sate madura">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 11</span>
+                        <h3>Sate Madura</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="sate madura.webp" alt="Menu 11">
+                    </div>
+                </div>
+                <a href="satemadura.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+            <article class="card" data-kios="18" data-name="pecel ayam penyet">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 18</span>
+                        <h3>Pecel Ayam Penyet</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="ayam penyet.webp" alt="Menu 18">
+                    </div>
+                </div>
+                <a href="ayampenyet.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+            <article class="card" data-kios="24" data-name="tongseng solo">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 24</span>
+                        <h3>Tongseng Solo</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="tongseng solo.webp" alt="Menu 24">
+                    </div>
+                </div>
+                <a href="tongsengsolo.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+            <article class="card" data-kios="27" data-name="nasi goreng pak s">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 27</span>
+                        <h3>Nasi Goreng Pak S.</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="nasi goreng pak s.webp" alt="Menu 27">
+                    </div>
+                </div>
+                <a href="nasigoreng.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+            <article class="card" data-kios="32" data-name="mie ayam eceu">
+                <div class="card-body">
+                    <div class="card-info">
+                        <span class="badge">Kios 32</span>
+                        <h3>Mie Ayam Eceu</h3>
+                    </div>
+                    <div class="card-image">
+                        <img src="mie ayam eceu.webp" alt="Menu 32">
+                    </div>
+                </div>
+                <a href="mieayam.html">
+                    <button class="btn-lihat">Lihat Kios</button>
+                </a>
+            </article>
+
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    
+    // Ambil elemen
+    const kiosBoxes = document.querySelectorAll('.kios-box');
+    const cards = document.querySelectorAll('.card');
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const currentFilterLabel = document.getElementById('current-filter');
+
+    // === FITUR 1: KLIK NOMOR KIOS ===
+    kiosBoxes.forEach(box => {
+        box.addEventListener('click', () => {
+            // 1. Reset visual kotak lain
+            kiosBoxes.forEach(b => b.classList.remove('active'));
+            
+            // 2. Aktifkan kotak yang diklik
+            box.classList.add('active');
+
+            // 3. Ambil nomor kios
+            const nomorKios = box.getAttribute('data-kios');
+            
+            // 4. Update teks status
+            currentFilterLabel.textContent = `Kios ${nomorKios}`;
+
+            // 5. Filter Kartu di Bawah
+            filterCardsByKios(nomorKios);
+        });
+    });
+
+    function filterCardsByKios(nomor) {
+        let found = false;
+        cards.forEach(card => {
+            if (card.getAttribute('data-kios') === nomor) {
+                card.style.display = 'flex';
+                found = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (!found) {
+            currentFilterLabel.textContent = `Kios ${nomor} (Belum ada menu)`;
+        }
+    }
+
+    // === FITUR 2: SEARCH BUTTON ===
+    searchBtn.addEventListener('click', () => {
+        const keyword = searchInput.value.toLowerCase();
+        
+        // Reset pilihan di peta
+        kiosBoxes.forEach(b => b.classList.remove('active'));
+
+        currentFilterLabel.textContent = `Pencarian "${keyword}"`;
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            if (name.includes(keyword)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Opsional: Search saat mengetik (realtime)
+    searchInput.addEventListener('input', () => {
+        if (searchInput.value === '') {
+            // Jika kosong, tampilkan semua
+            cards.forEach(card => card.style.display = 'flex');
+            currentFilterLabel.textContent = '(Semua Kios)';
+            kiosBoxes.forEach(b => b.classList.remove('active'));
+        }
+    });
+
+});
+    </script>
+</body>
+</html>
