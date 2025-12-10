@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran - Kantek Pintar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>/* GLOBAL */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f6fa;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.checkout-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* HEADER */
+.checkout-header {
+    margin-bottom: 30px;
+}
+.checkout-header h1 {
+    margin: 10px 0 0;
+}
+.back-link {
+    text-decoration: none;
+    color: #666;
+    font-size: 0.9rem;
+}
+.back-link:hover { color: #2ecc71; }
+
+/* LAYOUT (Grid 2 Kolom) */
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+/* CARDS (Kotak Putih) */
+.order-summary, .payment-details {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    height: fit-content;
+}
+
+h2, h3 { margin-top: 0; font-size: 1.2rem; }
+
+/* ITEM LIST */
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
+.item-row p { margin: 2px 0 0; color: #888; font-size: 0.85rem; }
+
+.divider {
+    height: 1px;
+    background: #eee;
+    margin: 20px 0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+.total-price { color: #2ecc71; }
+
+/* FORM INPUTS */
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;}
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    box-sizing: border-box; /* Agar padding tidak melebar keluar */
+}
+
+/* PAYMENT METHODS (Radio Button Styling) */
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.payment-card {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Sembunyikan radio button asli */
+.payment-card input { display: none; }
+
+.card-content {
+    border: 2px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    transition: 0.2s;
+}
+
+.method-name { font-weight: 600; }
+.method-desc { font-size: 0.8rem; color: #888; }
+
+/* Efek saat dipilih */
+.payment-card input:checked + .card-content {
+    border-color: #2ecc71;
+    background-color: #f0fdf4;
+}
+
+/* QRIS DISPLAY */
+.qris-container {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background: #fff;
+    border: 1px dashed #ccc;
+    display: none; /* Hidden by default */
+}
+.qris-container img { width: 150px; height: 150px; }
+
+/* TOMBOL BAYAR */
+.btn-pay {
+    width: 100%;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 25px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-pay:hover { background-color: #27ae60; }
+
+/* RESPONSIVE (HP) */
+@media (max-width: 768px) {
+    .checkout-layout { grid-template-columns: 1fr; }
+    body { padding: 15px; }
+}
+</style>
+</head>
+<body>
+
+    <div class="checkout-container">
+        
+        <header class="checkout-header">
+            <a href="index.html" class="back-link">← Kembali ke Menu</a>
+            <h1>Pembayaran</h1>
+        </header>
+
+        <div class="checkout-layout">
+            
+            <section class="order-summary">
+                <h2>Rincian Pesanan</h2>
+                <div class="order-items" id="order-items-list">
+                    </div>
+                
+                <div class="divider"></div>
+                
+                <div class="total-row">
+                    <span>Total Pembayaran</span>
+                    <span class="total-price" id="total-price-display">Rp 0</span>
+                </div>
+            </section>
+
+            <section class="payment-details">
+                
+                <div class="form-group">
+                    <label>Nama Pemesan</label>
+                    <input type="text" id="customer-name" placeholder="Contoh: Budi">
+                </div>
+                <div class="form-group">
+                    <label>Nomor Meja</label>
+                    <input type="number" id="table-number" placeholder="Contoh: 12">
+                </div>
+
+                <div class="payment-method-section">
+                    <h3>Metode Pembayaran</h3>
+                    <div class="payment-options">
+                        <label class="payment-card">
+                            <input type="radio" name="payment" value="qris" checked>
+                            <div class="card-content">
+                                <span class="method-name">QRIS (Scan)</span>
+                                <span class="method-desc">Gopay, Ovo, Dana, dll</span>
+                            </div>
+                        </label>
+
+                        <label class="payment-card">
+                            <input type="radio" name="payment" value="tunai">
+                            <div class="card-content">
+                                <span class="method-name">Tunai / Cash</span>
+                                <span class="method-desc">Bayar di Kasir</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="qris-display" class="qris-container">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="QR Code">
+                    <p>Scan untuk membayar</p>
+                </div>
+
+                <button id="btn-pay" class="btn-pay">Bayar Sekarang</button>
+            </section>
+
+        </div>
+    </div>
+
+    <script>document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. DATA DUMMY (Simulasi Keranjang Belanja)
+    // Di aplikasi nyata, data ini diambil dari localStorage atau Database
+    const cartItems = [
+        { name: "Nasi Goreng Pak S.", price: 15000, qty: 1 },
+        { name: "Es Teh Manis", price: 5000, qty: 2 },
+        { name: "Kerupuk", price: 2000, qty: 1 }
+    ];
+
+    const orderListEl = document.getElementById('order-items-list');
+    const totalPriceEl = document.getElementById('total-price-display');
+    let grandTotal = 0;
+
+    // 2. RENDER DAFTAR PESANAN
+    cartItems.forEach(item => {
+        const subtotal = item.price * item.qty;
+        grandTotal += subtotal;
+
+        const itemHTML = `
+            <div class="item-row">
+                <div>
+                    <b>${item.name}</b>
+                    <p>${item.qty}x @ Rp ${item.price.toLocaleString('id-ID')}</p>
+                </div>
+                <span>Rp ${subtotal.toLocaleString('id-ID')}</span>
+            </div>
+        `;
+        orderListEl.innerHTML += itemHTML;
+    });
+
+    // Tampilkan Total
+    totalPriceEl.textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+
+    // 3. LOGIKA PILIHAN PEMBAYARAN (QRIS Toggle)
+    const radioButtons = document.querySelectorAll('input[name="payment"]');
+    const qrisDisplay = document.getElementById('qris-display');
+
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.value === 'qris') {
+                qrisDisplay.style.display = 'block';
+            } else {
+                qrisDisplay.style.display = 'none';
+            }
+        });
+    });
+
+    // Tampilkan QRIS default jika checked di awal
+    if(document.querySelector('input[value="qris"]').checked) {
+        qrisDisplay.style.display = 'block';
+    }
+
+    // 4. PROSES TOMBOL BAYAR
+    const btnPay = document.getElementById('btn-pay');
+    const inputName = document.getElementById('customer-name');
+    const inputTable = document.getElementById('table-number');
+
+    btnPay.addEventListener('click', () => {
+        // Validasi Input
+        if (inputName.value.trim() === "" || inputTable.value.trim() === "") {
+            alert("Harap isi Nama dan Nomor Meja!");
+            return;
+        }
+
+        // Efek Loading Sederhana
+        btnPay.textContent = "Memproses...";
+        btnPay.disabled = true;
+
+        setTimeout(() => {
+            // Pesan Sukses
+            const method = document.querySelector('input[name="payment"]:checked').value;
+            const methodText = method === 'qris' ? 'QRIS' : 'Tunai';
+            
+            alert(`Pembayaran Berhasil!\n\nNama: ${inputName.value}\nMeja: ${inputTable.value}\nMetode: ${methodText}\nTotal: Rp ${grandTotal.toLocaleString('id-ID')}\n\nMohon tunggu pesanan Anda.`);
+            
+            // Redirect kembali ke menu utama (opsional)
+            window.location.href = "index.html"; 
+            
+        }, 2000); // Delay 2 detik
+    });
+
+});</script>
+</body>
+</html>

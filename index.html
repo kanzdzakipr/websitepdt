@@ -245,6 +245,60 @@
                 gap: 1px; /* Rapatkan kotak di layar kecil */
             }
         }
+
+        /* Styling untuk Tombol Melayang di Bawah */
+.floating-cart {
+    position: fixed; /* Kunci agar melayang */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    padding: 15px 20px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1); /* Bayangan di atas */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000; /* Pastikan selalu di atas elemen lain */
+    border-top: 1px solid #eee;
+}
+
+/* Info Total Harga (Kiri) */
+.cart-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-info .count {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.cart-info .total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* Tombol Link ke Pembayaran (Kanan) */
+.btn-checkout {
+    background-color: #2ecc71; /* Hijau */
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none; /* Hilangkan garis bawah link */
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+    transition: transform 0.1s;
+}
+
+.btn-checkout:active {
+    transform: scale(0.95); /* Efek tekan */
+}
+
+/* Tambahkan padding di body agar konten paling bawah tidak tertutup tombol */
+body {
+    padding-bottom: 100px; /* Penting! */
+}
     </style>
 </head>
 <body>
@@ -466,6 +520,16 @@
             </article>
 
         </section>
+    </div>
+
+    <div class="floating-cart">
+        <div class="cart-info">
+            <span class="count">3 Item</span>
+            <span class="total">Rp 27.000</span>
+        </div>
+        <a href="pembayaran.html" class="btn-checkout">
+            Bayar Sekarang ➔
+        </a>
     </div>
 
     <script>
